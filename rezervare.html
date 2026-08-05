@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restaurant Reservation System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #1a3a52;
+      --primary-light: #2d5a7b;
+      --accent: #d4a574;
+      --accent-light: #e8c5a5;
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --text-primary: #2c3e50;
+      --text-secondary: #7f8c8d;
+      --border-color: #ecf0f1;
+      --success: #27ae60;
+      --warning: #e74c3c;
+      --info: #3498db;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: 40px 0;
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 32px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      font-size: 16px;
+      opacity: 0.9;
+      margin-top: 8px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+    }
+
+    .card h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+
+    .card > p {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-row.full {
+      grid-template-columns: 1fr;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .input-spinner {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      gap: 4px;
+    }
+
+    .input-spinner button {
+      background: var(--border-color);
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      transition: background 0.2s;
+    }
+
+    .input-spinner button:hover {
+      background: var(--accent-light);
+    }
+
+    .input-group input[type="number"] {
+      padding-right: 60px;
+    }
+
+    .status-box {
+      background: linear-gradient(135deg, rgba(26, 58, 82, 0.05) 0%, rgba(212, 165, 116, 0.05) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 20px 0;
+      font-size: 14px;
+      color: var(--text-primary);
+      border-left: 4px solid var(--accent);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(26, 58, 82, 0.15);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(26, 58, 82, 0.25);
+    }
+
+    .btn-secondary {
+      background: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      background: #ddd;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+
+    .map-container {
+      position: relative;
+      height: 500px;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .map {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      position: relative;
+    }
+
+    .map-inner {
+      position: relative;
+      transform-origin: top left;
+    }
+
+    .table {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.2s;
+      font-size: 13px;
+      border: none;
+    }
+
+    .table:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .table.free {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    }
+
+    .table.window {
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    }
+
+    .table.busy {
+      background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .table.dimmed {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    .table.selected {
+      outline: 3px solid var(--accent);
+      outline-offset: 4px;
+      transform: scale(1.08);
+    }
+
+    .badge {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      box-shadow: var(--shadow);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal.open {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 12px;
+    }
+
+    footer {
+      background: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 24px;
+      margin-top: 60px;
+      font-size: 14px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      header h1 {
+        font-size: 24px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .map-container {
+        height: 350px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Restaurant Reservation</h1>
+      <p>Book your table with ease and convenience</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="content-grid">
+      <div class="card">
+        <h2>Booking Details</h2>
+        <p>Please fill in your reservation information</p>
+
+        <form method="POST" action="http://localhost:8082/rezervari" id="rez-form">
+          <div class="form-group">
+            <label for="nume">Full Name</label>
+            <input id="nume" name="nume_client" type="text" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nr_persoane">Number of Guests</label>
+              <div class="input-group">
+                <input id="nr_persoane" name="nr_persoane" type="number" min="1" max="12" required />
+                <div class="input-spinner">
+                  <button type="button" data-spin="up">+</button>
+                  <button type="button" data-spin="down">−</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="data">Date</label>
+              <input id="data" name="data" type="date" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ora">Time</label>
+              <select id="ora-select" name="ora" required></select>
+            </div>
+
+            <div class="form-group">
+              <label for="locatie">Preferred Location</label>
+              <select id="locatie" name="locatie">
+                <option value="any">Any</option>
+                <option value="window">Near Window</option>
+                <option value="quiet">Quiet Area</option>
+              </select>
+            </div>
+          </div>
+
+          <input type="hidden" name="data_ora" />
+          <input type="hidden" name="masa_id" id="masa_id" />
+
+          <div class="status-box" id="selected-status">
+            No table selected. Choose one from the map or use auto-assignment.
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-secondary" type="button" id="auto-btn">Auto-Assign</button>
+            <button class="btn btn-primary" type="submit">Book Table</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Table Map</h2>
+        <p>View available tables for your selected date and time</p>
+        <div class="map-container">
+          <div class="map" id="map"><div class="map-inner" id="map-inner"></div></div>
+        </div>
+        <div class="hint">
+          💙 Blue = Available | 💚 Green = Window Seat | 🩶 Gray = Occupied
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal" id="confirm-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Confirm Booking</h3>
+        <button class="modal-close" id="close-confirm">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-text">Are you sure you want to book this table?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" id="cancel-confirm">Cancel</button>
+        <button class="btn btn-primary" type="button" id="ok-confirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Modal -->
+  <div class="modal" id="result-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Booking Result</h3>
+        <button class="modal-close" id="close-result">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="result-text">Your reservation has been processed.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" type="button" id="ok-result">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 Restaurant Reservation System. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const map = document.getElementById('map');
+    const mapInner = document.getElementById('map-inner');
+    const masaInput = document.getElementById('masa_id');
+    const status = document.getElementById('selected-status');
+    const form = document.getElementById('rez-form');
+    const confirmModal = document.getElementById('confirm-modal');
+    const resultModal = document.getElementById('result-modal');
+    const autoBtn = document.getElementById('auto-btn');
+    const closeConfirm = document.getElementById('close-confirm');
+    const cancelConfirm = document.getElementById('cancel-confirm');
+    const okConfirm = document.getElementById('ok-confirm');
+    const closeResult = document.getElementById('close-result');
+    const okResult = document.getElementById('ok-result');
+    const confirmText = document.getElementById('confirm-text');
+    const resultText = document.getElementById('result-text');
+    const nrInput = form.querySelector('input[name="nr_persoane"]');
+    const spinButtons = document.querySelectorAll('[data-spin]');
+    const dateInput = form.querySelector('input[name="data"]');
+    const timeSelect = document.getElementById('ora-select');
+    const dateTimeInput = form.querySelector('input[name="data_ora"]');
+    
+    let selectedMasaId = null;
+    let autoSelectMode = false;
+
+    function getTargetSeats() {
+      const val = parseInt(nrInput.value || '', 10);
+      if (!val || Number.isNaN(val)) return null;
+      return val % 2 === 1 ? val + 1 : val;
+    }
+
+    function updatePeopleState() {
+      const target = getTargetSeats();
+      if (!target) {
+        selectedMasaId = null;
+        masaInput.value = '';
+        status.textContent = 'Complete the number of guests to select a table.';
+      }
+    }
+
+    function renderTables(list) {
+      mapInner.innerHTML = '';
+      if (!list || list.length === 0) return;
+
+      const targetSeats = getTargetSeats();
+      const padding = 40;
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+      list.forEach(m => {
+        const w = 100;
+        const h = 100;
+        minX = Math.min(minX, m.pozitie_x);
+        minY = Math.min(minY, m.pozitie_y);
+        maxX = Math.max(maxX, m.pozitie_x + w);
+        maxY = Math.max(maxY, m.pozitie_y + h);
+      });
+
+      const contentW = (maxX - minX) + padding * 2;
+      const contentH = (maxY - minY) + padding * 2;
+      const scaleX = map.clientWidth / contentW;
+      const scaleY = map.clientHeight / contentH;
+      const scale = Math.max(0.5, Math.min(1.5, scaleX, scaleY));
+
+      mapInner.style.width = contentW + 'px';
+      mapInner.style.height = contentH + 'px';
+      mapInner.style.transform = `scale(${scale})`;
+
+      list.forEach(m => {
+        const el = document.createElement('button');
+        const matchesTarget = targetSeats ? m.capacitate === targetSeats : true;
+        el.className = `table ${m.ocupata ? 'busy' : (m.langa_fereastra ? 'window' : 'free')}`;
+        if (!matchesTarget) el.classList.add('dimmed');
+        el.style.left = (m.pozitie_x - minX + padding) + 'px';
+        el.style.top = (m.pozitie_y - minY + padding) + 'px';
+        el.textContent = m.nume;
+        el.dataset.masaId = String(m.id);
+        el.type = 'button';
+
+        const badge = document.createElement('div');
+        badge.className = 'badge';
+        badge.textContent = `${m.capacitate} seats`;
+        el.appendChild(badge);
+
+        if (!m.ocupata && matchesTarget) {
+          el.addEventListener('click', (e) => {
+            e.preventDefault();
+            const isSelected = el.classList.contains('selected');
+            document.querySelectorAll('.table').forEach(t => t.classList.remove('selected'));
+            if (isSelected) {
+              selectedMasaId = null;
+              masaInput.value = '';
+              status.textContent = 'No table selected.';
+            } else {
+              selectedMasaId = m.id;
+              el.classList.add('selected');
+              masaInput.value = m.id;
+              status.textContent = `Selected: ${m.nume} (${m.capacitate} seats)`;
+            }
+          });
+        }
+        mapInner.appendChild(el);
+      });
+    }
+
+    function populateTimeSlots() {
+      const slots = [];
+      for (let h = 10; h <= 23; h++) {
+        slots.push(`${String(h).padStart(2, '0')}:00`);
+        slots.push(`${String(h).padStart(2, '0')}:30`);
+      }
+      timeSelect.innerHTML = slots.map(t => `<option value="${t}">${t}</option>`).join('');
+    }
+
+    function syncDateTime() {
+      if (!dateInput.value || !timeSelect.value) return;
+      dateTimeInput.value = `${dateInput.value}T${timeSelect.value}`;
+    }
+
+    async function loadMap() {
+      const dt = dateTimeInput.value;
+      const date = dt ? dt.substring(0, 10) : new Date().toISOString().substring(0, 10);
+      try {
+        const query = dt ? `datetime=${encodeURIComponent(dt)}` : `date=${date}`;
+        const res = await fetch(`http://localhost:8082/mese?${query}`);
+        if (res.ok) {
+          const data = await res.json();
+          renderTables(data);
+        }
+      } catch (e) {
+        console.error('Error loading map', e);
+      }
+    }
+
+    dateInput.addEventListener('change', () => {
+      syncDateTime();
+      loadMap();
+    });
+    timeSelect.addEventListener('change', () => {
+      syncDateTime();
+      loadMap();
+    });
+    nrInput.addEventListener('input', () => {
+      updatePeopleState();
+      loadMap();
+    });
+
+    spinButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const min = parseInt(nrInput.min || '1', 10);
+        const max = parseInt(nrInput.max || '12', 10);
+        const current = parseInt(nrInput.value || min, 10);
+        const next = btn.dataset.spin === 'up' ? current + 1 : current - 1;
+        nrInput.value = Math.min(max, Math.max(min, next));
+        nrInput.dispatchEvent(new Event('input'));
+      });
+    });
+
+    closeConfirm.addEventListener('click', () => confirmModal.classList.remove('open'));
+    cancelConfirm.addEventListener('click', () => confirmModal.classList.remove('open'));
+    closeResult.addEventListener('click', () => resultModal.classList.remove('open'));
+    okResult.addEventListener('click', () => resultModal.classList.remove('open'));
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        confirmModal.classList.remove('open');
+        resultModal.classList.remove('open');
+      }
+    });
+
+    autoBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!nrInput.value) {
+        resultText.textContent = 'Please specify the number of guests.';
+        resultModal.classList.add('open');
+        return;
+      }
+      autoSelectMode = true;
+      confirmText.textContent = 'Proceed with automatic table assignment?';
+      confirmModal.classList.add('open');
+    });
+
+    window.addEventListener('load', () => {
+      populateTimeSlots();
+      const now = new Date();
+      dateInput.value = now.toISOString().substring(0, 10);
+      timeSelect.value = '19:00';
+      syncDateTime();
+      updatePeopleState();
+      loadMap();
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!nrInput.value) {
+        resultText.textContent = 'Please specify the number of guests.';
+        resultModal.classList.add('open');
+        return;
+      }
+      if (!selectedMasaId && !autoSelectMode) {
+        resultText.textContent = 'Please select a table or use auto-assignment.';
+        resultModal.classList.add('open');
+        return;
+      }
+      autoSelectMode = false;
+      confirmText.textContent = 'Confirm your reservation?';
+      confirmModal.classList.add('open');
+    });
+
+    okConfirm.addEventListener('click', async () => {
+      confirmModal.classList.remove('open');
+      const formData = new FormData(form);
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new URLSearchParams(formData)
+        });
+        const text = await res.text();
+        resultText.textContent = text || (res.ok ? 'Your reservation has been confirmed!' : 'Reservation error.');
+        resultModal.classList.add('open');
+        if (res.ok) {
+          selectedMasaId = null;
+          masaInput.value = '';
+          status.textContent = 'No table selected.';
+          loadMap();
+        }
+      } catch (err) {
+        resultText.textContent = 'Error submitting reservation.';
+        resultModal.classList.add('open');
+      }
+    });
+  </script>
+</body>
+</html>

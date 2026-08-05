@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rezervare Restaurant</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #111827;
+      --primary: #8b5cf6;
+      --primary-dark: #6d28d9;
+      --accent: #22d3ee;
+      --accent-2: #f97316;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(180deg, #0b1020 0%, #0f172a 60%, #0b1020 100%);
+      background-size: 18px 18px, 100% 100%;
+      color: var(--text);
+    }
+    .page { max-width: 900px; margin: 0 auto; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 16px 40px rgba(0,0,0,0.45); padding: 18px 20px; position: relative; overflow: hidden; }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40% 50% auto -40%;
+      height: 220px;
+      background: radial-gradient(circle at center, rgba(34,211,238,0.18), transparent 70%);
+      pointer-events: none;
+      animation: glow 6s ease-in-out infinite;
+    }
+    h1 { margin: 4px 0 2px; font-size: 22px; }
+    p.sub { margin: 0 0 14px; color: var(--muted); font-size: 13px; }
+    label { display: block; margin-top: 12px; font-weight: 600; }
+    input, select { width: 100%; padding: 10px 12px; margin-top: 6px; border: 1px solid var(--border); border-radius: 10px; background: #0f172a; color: var(--text); transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+    input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34,211,238,0.25); }
+    input:hover, select:hover { background: #111c36; }
+    input[type=number] {
+      appearance: textfield;
+    }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=datetime-local]::-webkit-calendar-picker-indicator {
+      filter: invert(1) hue-rotate(210deg) saturate(3) brightness(1.2) drop-shadow(0 0 4px rgba(34,211,238,0.35));
+      opacity: 0.9;
+      transition: transform .2s ease, opacity .2s ease;
+    }
+    input[type=datetime-local]:hover::-webkit-calendar-picker-indicator {
+      transform: scale(1.12);
+      opacity: 1;
+    }
+    .number-wrap { position: relative; }
+    .number-wrap input { padding-right: 64px; }
+    .spin {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: row;
+      gap: 6px;
+    }
+    .spin button {
+      width: 20px;
+      height: 18px;
+      border: 1px solid #334155;
+      background: #0b1020;
+      color: #7dd3fc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 12px;
+      line-height: 1;
+      transition: transform .15s ease, box-shadow .2s ease, color .2s ease, background .2s ease;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+    }
+    .spin button:hover { transform: translateY(-1px); color: #a78bfa; background: #111c36; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 10px 20px rgba(124,58,237,0.25);
+      transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+      transform: translateX(-120%);
+      transition: transform .6s ease;
+    }
+    .btn:hover { transform: translateY(-1px) scale(1.01); box-shadow: 0 14px 26px rgba(124,58,237,0.32); filter: brightness(1.05); }
+    .btn:hover::after { transform: translateX(120%); }
+    .toggle { display:flex; align-items:center; gap:8px; margin-top: 10px; }
+    .ghost-btn {
+      background: #0f172a;
+      color: #e5e7eb;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform .2s ease, box-shadow .2s ease, color .2s ease;
+    }
+    .ghost-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 16px rgba(0,0,0,0.35); color: #a78bfa; }
+    .map { position: relative; height: clamp(420px, 70vh, 740px); background: linear-gradient(135deg, #0b132b, #111827 60%, #0b1020); border-radius: 18px; overflow: auto; border: 1px dashed #334155; }
+    .map-inner { position: relative; transform-origin: top left; }
+    .table { position: absolute; width: 150px; height: 150px; border-radius: 75px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; cursor: pointer; box-shadow: 0 12px 22px rgba(0,0,0,0.4); transition: transform .2s ease, box-shadow .2s ease; }
+    .table:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 16px 30px rgba(0,0,0,0.26); }
+    .table.small { width: 130px; height: 130px; border-radius: 65px; }
+    .table.large { width: 200px; height: 130px; border-radius: 65px; }
+    .table.free { background: linear-gradient(135deg, #22d3ee, #3b82f6); animation: float 3.5s ease-in-out infinite; }
+    .table.window { background: linear-gradient(135deg, #a3e635, #22c55e); animation: float 3.5s ease-in-out infinite; }
+    .table.busy { background: linear-gradient(135deg, #fb923c, #ef4444); cursor: not-allowed; opacity: 0.85; }
+    .table.dimmed { filter: grayscale(0.9); opacity: 0.35; cursor: not-allowed; animation: none; }
+    .badge { position:absolute; top: -8px; left: 12px; background: #0f172a; color: #e2e8f0; padding: 2px 8px; border-radius: 999px; font-size: 11px; border: 1px solid #334155; box-shadow: 0 6px 14px rgba(0,0,0,0.3); }
+    .chairs { position: absolute; inset: 0; pointer-events: none; }
+    .chair { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #cbd5f5; box-shadow: 0 2px 6px rgba(0,0,0,0.35); }
+    .table.selected { outline: 3px solid #f59e0b; outline-offset: 4px; box-shadow: 0 0 0 6px rgba(245,158,11,0.25); }
+    .hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+    .status { margin-top: 10px; font-size: 12px; color: #c7d2fe; }
+    .modal { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.75); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(8px); }
+    .modal.open { display: flex; animation: fade-in .25s ease; }
+    .modal-card { width: min(1500px, 98vw); max-height: 92vh; background: #0f172a; border: 1px solid #1f2937; border-radius: 20px; padding: 18px; box-shadow: 0 28px 90px rgba(0,0,0,0.5); transform: scale(0.96); animation: pop-in .25s ease forwards; display: flex; flex-direction: column; gap: 8px; }
+    .modal-header { display:flex; justify-content: space-between; align-items:center; margin-bottom: 10px; }
+    .close-btn {
+      background: linear-gradient(135deg, #1f2937, #111827);
+      color: #e5e7eb;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform .2s ease, box-shadow .2s ease, color .2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .close-btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 30%, rgba(34,211,238,0.25), transparent 60%);
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+    .close-btn:hover { transform: translateY(-1px) scale(1.02); box-shadow: 0 10px 20px rgba(0,0,0,0.35); color: #a78bfa; }
+    .close-btn:hover::after { opacity: 1; }
+    @media (max-width: 980px) {
+      .map { height: clamp(360px, 60vh, 520px); }
+    }
+    .map::-webkit-scrollbar { width: 12px; height: 12px; }
+    .map::-webkit-scrollbar-track { background: #0b1020; border-radius: 10px; }
+    .map::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #22d3ee, #8b5cf6); border-radius: 10px; border: 2px solid #0b1020; }
+    .map::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #38bdf8, #a78bfa); }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes pop-in {
+      from { transform: scale(0.94); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes glow {
+      0%, 100% { opacity: .35; transform: translateY(0); }
+      50% { opacity: .6; transform: translateY(8px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <h1>Rezervare masa</h1>
+      <p class="sub">Completeaza detaliile si alege daca doresti selectare manuala sau auto‑select.</p>
+
+      <form method="POST" action="http://localhost:8082/rezervari" id="rez-form">
+        <label>Nume Prenume</label>
+        <input name="nume_client" required />
+
+        <div class="row">
+          <div>
+            <label>Nr persoane</label>
+            <div class="number-wrap">
+              <input name="nr_persoane" type="number" min="1" max="12" required />
+              <div class="spin">
+                <button type="button" data-spin="up">+</button>
+                <button type="button" data-spin="down">−</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label>Data si ora</label>
+            <div class="row" style="grid-template-columns: 1fr 120px; gap: 8px;">
+              <input name="data" type="date" required />
+              <select name="ora" id="ora-select" required></select>
+            </div>
+            <input type="hidden" name="data_ora" />
+          </div>
+        </div>
+
+        <input type="hidden" name="masa_id" id="masa_id" />
+        <div class="status" id="selected-status">Nicio masa selectata.</div>
+
+        <button class="btn" type="submit">Rezerva</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="map-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h1 style="margin:0;">Harta mese</h1>
+          <p class="sub">Pozitia meselor este sincronizata cu aplicatia.</p>
+        </div>
+        <button class="close-btn" id="close-map">Inchide</button>
+      </div>
+      <div class="map" id="map"><div class="map-inner" id="map-inner"></div></div>
+      <div class="hint">Rosu = ocupat in ziua selectata. Click pentru selectare.</div>
+    </div>
+  </div>
+
+  <div class="modal" id="choice-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h1 style="margin:0;">Alegere masa</h1>
+          <p class="sub">Doresti sa iti alegi masa sau sa alegem noi automat?</p>
+        </div>
+        <button class="close-btn" id="close-choice">Inchide</button>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button class="ghost-btn" type="button" id="auto-assign">Auto‑select</button>
+        <button class="btn" type="button" id="choose-table">Selecteaza masa</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="confirm-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h1 style="margin:0;">Confirmare rezervare</h1>
+          <p class="sub" id="confirm-text">Confirmi rezervarea?</p>
+        </div>
+        <button class="close-btn" id="close-confirm">Inchide</button>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button class="ghost-btn" type="button" id="cancel-confirm">Renunta</button>
+        <button class="btn" type="button" id="ok-confirm">Confirma</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="result-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h1 style="margin:0;">Rezultat rezervare</h1>
+          <p class="sub" id="result-text">Rezervare trimisa.</p>
+        </div>
+        <button class="close-btn" id="close-result">Inchide</button>
+      </div>
+      <div style="display:flex; justify-content:flex-end;">
+        <button class="btn" type="button" id="ok-result">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const map = document.getElementById('map');
+    const mapInner = document.getElementById('map-inner');
+    const masaInput = document.getElementById('masa_id');
+    const status = document.getElementById('selected-status');
+    const form = document.getElementById('rez-form');
+    const modal = document.getElementById('map-modal');
+    const closeMap = document.getElementById('close-map');
+    const choiceModal = document.getElementById('choice-modal');
+    const confirmModal = document.getElementById('confirm-modal');
+    const resultModal = document.getElementById('result-modal');
+    const chooseTableBtn = document.getElementById('choose-table');
+    const autoAssignBtn = document.getElementById('auto-assign');
+    const closeChoice = document.getElementById('close-choice');
+    const closeConfirm = document.getElementById('close-confirm');
+    const cancelConfirm = document.getElementById('cancel-confirm');
+    const okConfirm = document.getElementById('ok-confirm');
+    const closeResult = document.getElementById('close-result');
+    const okResult = document.getElementById('ok-result');
+    const confirmText = document.getElementById('confirm-text');
+    const resultText = document.getElementById('result-text');
+    const nrInput = form.querySelector('input[name="nr_persoane"]');
+    const spinButtons = document.querySelectorAll('[data-spin]');
+    const dateInput = form.querySelector('input[name="data"]');
+    const timeSelect = document.getElementById('ora-select');
+    const dateTimeInput = form.querySelector('input[name="data_ora"]');
+    let selectedMasaId = null;
+    let pendingConfirmAfterSelect = false;
+
+    function addChairs(el, capacity, large) {
+      const count = Math.max(2, capacity);
+      const chairs = document.createElement('div');
+      chairs.className = 'chairs';
+
+      const rect = el.getBoundingClientRect();
+      const w = rect.width || (large ? 200 : 150);
+      const h = rect.height || (large ? 130 : 150);
+      const radiusX = large ? (w / 2 + 18) : (w / 2 + 14);
+      const radiusY = large ? (h / 2 + 14) : (h / 2 + 14);
+
+      for (let i = 0; i < count; i++) {
+        const angle = (2 * Math.PI / count) * i;
+        const cx = w / 2 + Math.cos(angle) * radiusX;
+        const cy = h / 2 + Math.sin(angle) * radiusY;
+        const dot = document.createElement('span');
+        dot.className = 'chair';
+        dot.style.left = `${cx - 4}px`;
+        dot.style.top = `${cy - 4}px`;
+        chairs.appendChild(dot);
+      }
+
+      el.appendChild(chairs);
+    }
+
+    function getTargetSeats() {
+      const val = parseInt(nrInput.value || '', 10);
+      if (!val || Number.isNaN(val)) return null;
+      return val % 2 === 1 ? val + 1 : val;
+    }
+
+    function updatePeopleState() {
+      const target = getTargetSeats();
+      if (!target) {
+        selectedMasaId = null;
+        masaInput.value = '';
+        status.textContent = 'Completeaza numarul de persoane pentru a selecta masa.';
+      }
+    }
+
+    function renderTables(list) {
+      mapInner.innerHTML = '';
+      if (!list || list.length === 0) return;
+
+      const targetSeats = getTargetSeats();
+
+      const padding = 40;
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      list.forEach(m => {
+        const w = (m.capacitate > 8) ? 200 : (m.capacitate <= 3 ? 130 : 150);
+        const h = (m.capacitate > 8) ? 130 : (m.capacitate <= 3 ? 130 : 150);
+        minX = Math.min(minX, m.pozitie_x);
+        minY = Math.min(minY, m.pozitie_y);
+        maxX = Math.max(maxX, m.pozitie_x + w);
+        maxY = Math.max(maxY, m.pozitie_y + h);
+      });
+
+      const contentW = (maxX - minX) + padding * 2;
+      const contentH = (maxY - minY) + padding * 2;
+      const scaleX = map.clientWidth / contentW;
+      const scaleY = map.clientHeight / contentH;
+      const maxScale = 1.7;
+      const minScale = 0.6;
+      const scale = Math.max(minScale, Math.min(maxScale, scaleX, scaleY));
+
+      mapInner.style.width = contentW + 'px';
+      mapInner.style.height = contentH + 'px';
+      mapInner.style.transform = `scale(${scale})`;
+
+      list.forEach(m => {
+        const el = document.createElement('div');
+        const matchesTarget = targetSeats ? m.capacitate === targetSeats : true;
+        el.className = `table ${m.ocupata ? 'busy' : (m.langa_fereastra ? 'window' : 'free')}`;
+        const isSmall = m.capacitate <= 3;
+        const isLarge = m.capacitate > 8;
+        if (isSmall) el.classList.add('small');
+        if (isLarge) el.classList.add('large');
+        if (!matchesTarget) el.classList.add('dimmed');
+        el.style.left = (m.pozitie_x - minX + padding) + 'px';
+        el.style.top = (m.pozitie_y - minY + padding) + 'px';
+        el.textContent = m.nume;
+        el.dataset.masaId = String(m.id);
+
+        const badge = document.createElement('div');
+        badge.className = 'badge';
+        badge.textContent = `${m.capacitate} locuri` + (m.langa_fereastra ? ' • fereastra' : '');
+        el.appendChild(badge);
+        addChairs(el, m.capacitate, isLarge);
+
+        if (!m.ocupata && matchesTarget) {
+          el.addEventListener('click', () => {
+            const isSelected = el.classList.contains('selected');
+            document.querySelectorAll('.table').forEach(t => t.classList.remove('selected'));
+            if (isSelected) {
+              selectedMasaId = null;
+              masaInput.value = '';
+              status.textContent = 'Nicio masa selectata.';
+            } else {
+              selectedMasaId = m.id;
+              el.classList.add('selected');
+              masaInput.value = m.id;
+              status.textContent = `Masa selectata: ${m.nume}`;
+              if (pendingConfirmAfterSelect) {
+                pendingConfirmAfterSelect = false;
+                modal.classList.remove('open');
+                confirmText.textContent = 'Confirmi rezervarea pentru masa selectata?';
+                confirmModal.classList.add('open');
+                okConfirm.dataset.mode = 'selected';
+              }
+            }
+          });
+        }
+        mapInner.appendChild(el);
+      });
+
+      if (selectedMasaId != null) {
+        const selected = list.find(m => m.id === selectedMasaId);
+        if (selected && !selected.ocupata && (!targetSeats || selected.capacitate === targetSeats)) {
+          const el = mapInner.querySelector(`.table[data-masa-id="${selected.id}"]`);
+          if (el) el.classList.add('selected');
+          masaInput.value = selected.id;
+          status.textContent = `Masa selectata: ${selected.nume}`;
+        } else {
+          selectedMasaId = null;
+          masaInput.value = '';
+          status.textContent = 'Nicio masa selectata.';
+        }
+      }
+    }
+
+    function toBucharestParts(date) {
+      return new Intl.DateTimeFormat('sv-SE', {
+        timeZone: 'Europe/Bucharest',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).formatToParts(date).reduce((acc, p) => {
+        acc[p.type] = p.value;
+        return acc;
+      }, {});
+    }
+
+    function populateTimeSlots() {
+      const slots = [];
+      for (let h = 10; h <= 23; h++) {
+        slots.push(`${String(h).padStart(2, '0')}:00`);
+        slots.push(`${String(h).padStart(2, '0')}:30`);
+      }
+      timeSelect.innerHTML = slots.map(t => `<option value="${t}">${t}</option>`).join('');
+    }
+
+    function syncDateTime() {
+      if (!dateInput.value || !timeSelect.value) return;
+      dateTimeInput.value = `${dateInput.value}T${timeSelect.value}`;
+    }
+
+    async function loadMap() {
+      const dt = dateTimeInput.value;
+      const date = dt ? dt.substring(0, 10) : new Date().toISOString().substring(0,10);
+      try {
+        const query = dt ? `datetime=${encodeURIComponent(dt)}` : `date=${date}`;
+        const res = await fetch(`http://localhost:8082/mese?${query}`);
+        if (!res.ok) {
+          map.innerHTML = `<div class="status">Nu pot incarca harta meselor.</div>`;
+          return;
+        }
+        const data = await res.json();
+        renderTables(data);
+      } catch (e) {
+        map.innerHTML = `<div class="status">Nu pot incarca harta meselor.</div>`;
+      }
+    }
+
+    dateInput.addEventListener('change', () => {
+      syncDateTime();
+      loadMap();
+    });
+    timeSelect.addEventListener('change', () => {
+      syncDateTime();
+      loadMap();
+    });
+
+    nrInput.addEventListener('input', () => {
+      updatePeopleState();
+      if (modal.classList.contains('open')) {
+        loadMap();
+      }
+    });
+
+    chooseTableBtn.addEventListener('click', () => {
+      pendingConfirmAfterSelect = true;
+      choiceModal.classList.remove('open');
+      modal.classList.add('open');
+      loadMap();
+    });
+    autoAssignBtn.addEventListener('click', () => {
+      choiceModal.classList.remove('open');
+      confirmText.textContent = 'Confirmi rezervarea cu auto-select?';
+      confirmModal.classList.add('open');
+      okConfirm.dataset.mode = 'auto';
+    });
+    closeMap.addEventListener('click', () => modal.classList.remove('open'));
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('open');
+    });
+    closeChoice.addEventListener('click', () => choiceModal.classList.remove('open'));
+    closeConfirm.addEventListener('click', () => confirmModal.classList.remove('open'));
+    cancelConfirm.addEventListener('click', () => confirmModal.classList.remove('open'));
+    closeResult.addEventListener('click', () => resultModal.classList.remove('open'));
+    okResult.addEventListener('click', () => resultModal.classList.remove('open'));
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (modal.classList.contains('open')) modal.classList.remove('open');
+        if (choiceModal.classList.contains('open')) choiceModal.classList.remove('open');
+        if (confirmModal.classList.contains('open')) confirmModal.classList.remove('open');
+        if (resultModal.classList.contains('open')) resultModal.classList.remove('open');
+      }
+    });
+    map.addEventListener('click', (e) => {
+      if (e.target === map || e.target === mapInner) {
+        document.querySelectorAll('.table').forEach(t => t.classList.remove('selected'));
+        selectedMasaId = null;
+        masaInput.value = '';
+        status.textContent = 'Nicio masa selectata.';
+      }
+    });
+
+    spinButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const min = parseInt(nrInput.min || '1', 10);
+        const max = parseInt(nrInput.max || '12', 10);
+        const step = parseInt(nrInput.step || '1', 10);
+        const current = parseInt(nrInput.value || min, 10);
+        const next = btn.dataset.spin === 'up' ? current + step : current - step;
+        nrInput.value = Math.min(max, Math.max(min, next));
+      });
+    });
+
+    window.addEventListener('load', () => {
+      populateTimeSlots();
+      const parts = toBucharestParts(new Date());
+      dateInput.value = `${parts.year}-${parts.month}-${parts.day}`;
+      const defaultTime = parts.minute < 30 ? `${parts.hour}:00` : `${parts.hour}:30`;
+      timeSelect.value = defaultTime;
+      syncDateTime();
+      updatePeopleState();
+      loadMap();
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!nrInput.value) {
+        resultText.textContent = 'Completeaza numarul de persoane.';
+        resultModal.classList.add('open');
+        return;
+      }
+      choiceModal.classList.add('open');
+    });
+
+    okConfirm.addEventListener('click', async () => {
+      confirmModal.classList.remove('open');
+      const mode = okConfirm.dataset.mode || 'selected';
+      if (mode === 'auto') {
+        masaInput.value = '';
+      }
+      const formData = new FormData(form);
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new URLSearchParams(formData)
+        });
+        const text = await res.text();
+        resultText.textContent = text || (res.ok ? 'Rezervare confirmata.' : 'Eroare la rezervare.');
+        resultModal.classList.add('open');
+        if (res.ok) {
+          selectedMasaId = null;
+          masaInput.value = '';
+          status.textContent = 'Nicio masa selectata.';
+          loadMap();
+        }
+      } catch (err) {
+        resultText.textContent = 'Eroare la trimiterea rezervarii.';
+        resultModal.classList.add('open');
+      }
+    });
+  </script>
+</body>
+</html>
